@@ -1,7 +1,5 @@
 # Variant 16
 
-___
-
 #### Expected results
 | X |    F(x)   |    G(x)   |   Result  |
 |:-:|:---------:|:---------:|:---------:|
