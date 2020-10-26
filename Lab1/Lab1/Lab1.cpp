@@ -11,7 +11,6 @@ int main()
 
 void demo()
 {
-	//auto t1 = f_func<INT>(3);
 	std::cout << "Choose one of the following test-cases:\n"
 		<< "\t1 - f finishes before g with non-zero value. Verify the rezult\n"
 		<< "\t2 - g finishes before f with non-zero value. Verify the rezult\n"
