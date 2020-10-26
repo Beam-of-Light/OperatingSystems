@@ -110,7 +110,16 @@ namespace LabFuncs
 		// Handle f and g computation
 		std::cout << "\nPress Q key to stop computation\n";
 		int result;
+		bool f_check = true, g_check = true;
 		while (true) {
+			if (f_result && f_check) {
+				std::cout << "\nf - " << std::to_string(*f_result);
+				f_check = false;
+			}
+			if (g_result && g_check) {
+				std::cout << "\ng - " << std::to_string(*g_result);
+				g_check = false;
+			}
 			if (f_result && g_result) {
 				result = *f_result * *g_result;
 				break;
@@ -124,24 +133,14 @@ namespace LabFuncs
 				break;
 			}
 			if (GetKeyState('Q') & 0x8000) {
-				std::string fs, gs;
-				fs = gs = "undefined";
-				if (f_result) {
-					fs = std::to_string(*f_result);
-					delete f_result;
-				}
-				if (g_result) {
-					gs = std::to_string(*g_result);
-					delete g_result;
-				}
-				f_result = g_result = nullptr;
-
-				std::cout << "\nf - " << fs << "\ng - " << gs;
 				std::cout << "\nResult is undefined\n";
+				if (f_result) delete f_result;
+				if (g_result) delete g_result;
+				f_result = g_result = nullptr;
 				return;
 			}
 		}
-		std::cout << "\nResult is " << result << std::endl;
+		std::cout << "\nResult is " << std::to_string(result) << std::endl;
 
 		if (f_result) delete f_result;
 		if (g_result) delete g_result;
