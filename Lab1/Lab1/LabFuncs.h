@@ -6,6 +6,7 @@
 #include <thread>
 #include <mutex>
 #include <chrono>
+#include <Windows.h>
 #include "demofuncs"
 
 using namespace spos::lab1::demo;
@@ -16,7 +17,7 @@ namespace LabFuncs
 	int* f_result = nullptr;
 	int* g_result = nullptr;
 
-	enum Functions {F, G};
+	enum Functions {F, G, F_TEST, G_TEST};
 
 	int f(int func_val)
 	{
@@ -73,22 +74,41 @@ namespace LabFuncs
 				});
 			t.detach();
 		}
-		else {
+		else if (func == Functions::G) {
 			std::thread t([func_val]()
 				{
 					g_result = new int(g(func_val));
 				});
 			t.detach();
+		} else if (func == Functions::F_TEST) {
+			std::thread t([func_val]()
+				{
+					f_result = new int(f_func<spos::lab1::demo::INT>(func_val - 1));
+				});
+			t.detach();
+		}
+		else if (func == Functions::G_TEST) {
+			std::thread t([func_val]()
+				{
+					g_result = new int(g_func<spos::lab1::demo::INT>(func_val - 1));
+				});
+			t.detach();
 		}
 	}
 
-	void fgHandler(int func_val)
+	void fgHandler(int func_val, int mode)
 	{
 		// Start f and g in different threads
-		fgStartThread(Functions::F, func_val);
-		fgStartThread(Functions::G, func_val);
+		if (mode == 1) {
+			fgStartThread(Functions::F, func_val);
+			fgStartThread(Functions::G, func_val);
+		} else if (mode == 2) {
+			fgStartThread(Functions::F_TEST, func_val);
+			fgStartThread(Functions::G_TEST, func_val);
+		} else return;
 
 		// Handle f and g computation
+		std::cout << "\nPress Q key to stop computation\n";
 		int result;
 		while (true) {
 			if (f_result && g_result) {
@@ -103,8 +123,25 @@ namespace LabFuncs
 				result = 0;
 				break;
 			}
+			if (GetKeyState('Q') & 0x8000) {
+				std::string fs, gs;
+				fs = gs = "undefined";
+				if (f_result) {
+					fs = std::to_string(*f_result);
+					delete f_result;
+				}
+				if (g_result) {
+					gs = std::to_string(*g_result);
+					delete g_result;
+				}
+				f_result = g_result = nullptr;
+
+				std::cout << "\nf - " << fs << "\ng - " << gs;
+				std::cout << "\nResult is undefined\n";
+				return;
+			}
 		}
-		std::cout << "\nResult is " << result;
+		std::cout << "\nResult is " << result << std::endl;
 
 		if (f_result) delete f_result;
 		if (g_result) delete g_result;
@@ -116,7 +153,7 @@ namespace LabFuncs
 	{
 		while (!(std::cin >> data)) {
 			std::cin.clear(); /* Clear errors (like the failbit flag) */
-			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); /* Throw away the rest of the line */
+			std::cin.ignore(LLONG_MAX, '\n'); /* Throw away the rest of the line */
 			std::cout << msg;
 		}
 	}
