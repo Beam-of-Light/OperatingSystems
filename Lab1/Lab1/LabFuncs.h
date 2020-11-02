@@ -5,6 +5,7 @@
 #include <string>
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 #include <chrono>
 #include <Windows.h>
 #include "demofuncs"
@@ -16,6 +17,10 @@ namespace LabFuncs
 	// Global variables
 	int* f_result = nullptr;
 	int* g_result = nullptr;
+	std::mutex mtx;
+	std::condition_variable cv;
+	bool thread_notified = false;
+	bool canceled = false;
 
 	enum Functions {F, G, F_TEST, G_TEST};
 
@@ -71,6 +76,8 @@ namespace LabFuncs
 			std::thread t([func_val]()
 				{
 					f_result = new int(f(func_val));
+					thread_notified = true;
+					cv.notify_one();
 				});
 			t.detach();
 		}
@@ -78,12 +85,16 @@ namespace LabFuncs
 			std::thread t([func_val]()
 				{
 					g_result = new int(g(func_val));
+					thread_notified = true;
+					cv.notify_one();
 				});
 			t.detach();
 		} else if (func == Functions::F_TEST) {
 			std::thread t([func_val]()
 				{
 					f_result = new int(f_func<spos::lab1::demo::INT>(func_val - 1));
+					thread_notified = true;
+					cv.notify_one();
 				});
 			t.detach();
 		}
@@ -91,8 +102,35 @@ namespace LabFuncs
 			std::thread t([func_val]()
 				{
 					g_result = new int(g_func<spos::lab1::demo::INT>(func_val - 1));
+					thread_notified = true;
+					cv.notify_one();
 				});
 			t.detach();
+		}
+	}
+
+	void cancelation()
+	{
+		while (true) {
+			if (GetKeyState('Q') & 0x8000) {
+				if (f_result) {
+					delete f_result;
+				}
+				else {
+					std::cout << "\nf - undefined";
+				}
+				if (g_result) {
+					delete g_result;
+				}
+				else {
+					std::cout << "\ng - undefined";
+				}
+				f_result = g_result = nullptr;
+				std::cout << "\nResult is undefined\n";
+				cv.notify_one();
+				canceled = true;
+				return;
+			}
 		}
 	}
 
@@ -109,9 +147,17 @@ namespace LabFuncs
 
 		// Handle f and g computation
 		std::cout << "\nPress Q key to stop computation\n";
+		std::thread t(cancelation);
+		t.detach();
+
 		int result;
 		bool f_check = true, g_check = true;
+		std::unique_lock<std::mutex> locker(mtx);
 		while (true) {
+			while (!thread_notified) {
+				cv.wait(locker);
+				if (canceled) return;
+			}
 			if (f_result && f_check) {
 				std::cout << "\nf - " << std::to_string(*f_result);
 				f_check = false;
@@ -126,19 +172,15 @@ namespace LabFuncs
 			}
 			if (f_result && *f_result == 0) {
 				result = 0;
+				std::cout << "\ng - undefined";
 				break;
 			}
 			if (g_result && *g_result == 0) {
 				result = 0;
+				std::cout << "\nf - undefined";
 				break;
 			}
-			if (GetKeyState('Q') & 0x8000) {
-				std::cout << "\nResult is undefined\n";
-				if (f_result) delete f_result;
-				if (g_result) delete g_result;
-				f_result = g_result = nullptr;
-				return;
-			}
+			thread_notified = false;
 		}
 		std::cout << "\nResult is " << std::to_string(result) << std::endl;
 
