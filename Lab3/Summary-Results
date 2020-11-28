@@ -1,0 +1,9 @@
+Scheduling Type: Batch (Nonpreemptive)
+Scheduling Name: Round-robin
+Simulation Run Time: 4118
+Mean: 1100
+Standard Deviation: 510
+Process #	CPU Time	IO Blocking	CPU Completed	CPU Blocked
+0		722 (ms)	100 (ms)	722 (ms)	7 times
+1		1698 (ms)	500 (ms)	1698 (ms)	3 times
+2		1698 (ms)	30 (ms)		1698 (ms)	56 times
