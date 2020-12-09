@@ -15,39 +15,6 @@ public class SchedulingAlgorithm {
     FORCEDOUT
   }
 
-  private static void print(int time, PrintStream out, ProcessState state, sProcess process, Vector<sProcess> processVector) {
-    print(time, out, state, process, processVector, false);
-  }
-
-  private static void print(int time, PrintStream out, ProcessState state, sProcess process, Vector<sProcess> processVector, boolean quantumExpired) {
-    out.println(time + "ms");
-    switch (state) {
-      case REGISTERED:
-        out.println("Process: " + processVector.indexOf(process) + " registered... (" +
-                process.cputime + " " + process.delay + " " + process.cpudone + ")");
-        break;
-      case COMPLETED:
-        if (quantumExpired) {
-          out.println("Quantum time expired");
-        } else {
-          out.println("Quantum time reset");
-        }
-        out.println("Process: " + processVector.indexOf(process) + " completed... (" +
-                process.cputime + " " + process.delay + " " + process.cpudone + ")");
-        break;
-      case JOINED:
-        out.println("Process joined queue");
-        out.println("Process: " + processVector.indexOf(process) + " (" + process.cputime +
-                " " + process.delay + " " + process.cpudone + ")");
-        break;
-      case FORCEDOUT:
-        out.println("Quantum time expired");
-        out.println("Process: " + processVector.indexOf(process) + " forced out... (" +
-                process.cputime + " " + process.delay + " " + process.cpudone + ")");
-        break;
-    }
-  }
-
   public static Results run(int quantum, int runtime, Vector<sProcess> processVector, Results result) {
     int comptime = 0;
     int size = processVector.size();
@@ -133,5 +100,38 @@ public class SchedulingAlgorithm {
 
     result.compuTime = comptime;
     return result;
+  }
+
+  private static void print(int time, PrintStream out, ProcessState state, sProcess process, Vector<sProcess> processVector) {
+    print(time, out, state, process, processVector, false);
+  }
+
+  private static void print(int time, PrintStream out, ProcessState state, sProcess process, Vector<sProcess> processVector, boolean quantumExpired) {
+    out.println(time + "ms");
+    switch (state) {
+      case REGISTERED:
+        out.println("Process: " + processVector.indexOf(process) + " registered... (" +
+                process.cputime + " " + process.delay + " " + process.cpudone + ")");
+        break;
+      case COMPLETED:
+        if (quantumExpired) {
+          out.println("Quantum time expired");
+        } else {
+          out.println("Quantum time reset");
+        }
+        out.println("Process: " + processVector.indexOf(process) + " completed... (" +
+                process.cputime + " " + process.delay + " " + process.cpudone + ")");
+        break;
+      case JOINED:
+        out.println("Process joined queue");
+        out.println("Process: " + processVector.indexOf(process) + " (" + process.cputime +
+                " " + process.delay + " " + process.cpudone + ")");
+        break;
+      case FORCEDOUT:
+        out.println("Quantum time expired");
+        out.println("Process: " + processVector.indexOf(process) + " forced out... (" +
+                process.cputime + " " + process.delay + " " + process.cpudone + ")");
+        break;
+    }
   }
 }
