@@ -20,30 +20,32 @@ public class SchedulingAlgorithm {
   }
 
   private static void print(int time, PrintStream out, ProcessState state, sProcess process, Vector<sProcess> processVector, boolean quantumExpired) {
-    out.print(time + "ms ");
+    out.println(time + "ms");
     switch (state) {
       case REGISTERED:
-        out.println("Process: " + processVector.indexOf(process) + " registered... (" + process.cputime + " " + process.delay + " " + process.cpudone + ")");
+        out.println("Process: " + processVector.indexOf(process) + " registered... (" +
+                process.cputime + " " + process.delay + " " + process.cpudone + ")");
         break;
       case COMPLETED:
         if (quantumExpired) {
           out.println("Quantum time expired");
         } else {
-
           out.println("Quantum time reset");
         }
-        out.println("Process: " + processVector.indexOf(process) + " completed... (" + process.cputime + " " + process.delay + " " + process.cpudone + ")");
+        out.println("Process: " + processVector.indexOf(process) + " completed... (" +
+                process.cputime + " " + process.delay + " " + process.cpudone + ")");
         break;
       case JOINED:
         out.println("Process joined queue");
-        out.println("Process: " + processVector.indexOf(process) + " (" + process.cputime + " " + process.delay + " " + process.cpudone + ")");
+        out.println("Process: " + processVector.indexOf(process) + " (" + process.cputime +
+                " " + process.delay + " " + process.cpudone + ")");
         break;
       case FORCEDOUT:
         out.println("Quantum time expired");
-        out.println("Process: " + processVector.indexOf(process) + " forced out... (" + process.cputime + " " + process.delay + " " + process.cpudone + ")");
+        out.println("Process: " + processVector.indexOf(process) + " forced out... (" +
+                process.cputime + " " + process.delay + " " + process.cpudone + ")");
         break;
     }
-
   }
 
   public static Results run(int quantum, int runtime, Vector<sProcess> processVector, Results result) {
@@ -88,16 +90,13 @@ public class SchedulingAlgorithm {
 
         if (process != null && process.cpudone == process.cputime) {
           completed++;
-
           print(comptime, out, ProcessState.COMPLETED, process, processVector, quantumCounter == quantum);
-
           quantumCounter = 0;
 
           if (completed == size) {
             result.compuTime = comptime;
             return result;
           }
-
           queue.remove();
 
           if (!queue.isEmpty()) {
@@ -125,10 +124,8 @@ public class SchedulingAlgorithm {
           quantumCounter++;
           process.cpudone++;
         }
-
         comptime++;
       }
-
       out.close();
     } catch (FileNotFoundException e) {
       e.printStackTrace();
